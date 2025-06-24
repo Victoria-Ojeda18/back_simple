@@ -3,6 +3,13 @@
 import { config } from "./config";
 import mysql from "mysql2/promise";
 
-export const connect = async () => {
-  return await mysql.createConnection(config);
-};
+export const pool =  mysql.createPool({
+  host: config.host,
+  user: config.user,
+  password: config.password,
+  database: config.database,
+  port: config.port,
+  connectionLimit: 10, // Limite de conexiones simultaneas
+  waitForConnections: true, // Esperar por conexiones disponibles
+  queueLimit: 0 // Sin limite de espera en la cola
+});

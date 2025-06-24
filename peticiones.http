@@ -1,43 +1,51 @@
-@login = http://localhost:3000/user/login
-@sigup = http://localhost:3000/user/usersp
-@public = http://localhost:3000/user/public
-@private = http://localhost:3000/user/private
-@token = http://localhost:3000/user/token
-@productos = http://localhost:3000/products/getAll
-POST  {{login}}
+@urlBase = http://localhost:3000
+@user = {{urlBase}}/users
+# Para obtener usuarios (GET, sin cuerpo)
+@materias = {{urlBase}}/materias
+
+
+GET {{user}}/
+### Para crear usuario (POST, con JSON)
+POST {{user}}/
 Content-Type: application/json
 
 {
-    "user" : "pepito",
-    "username" : "pepito rock"
+    "dni": "87458598",
+    "nombre": "Noliiiiii",
+    "apellido": "Currhu",
+    "email": "trbtrb.currhu@example.com",
+    "contrasena": "12349876",
+    "is_profe": true
 }
-
-###
-GET {{productos}}
-auth: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwZXBpdG8iLCJ1c2VybmFtZSI6InBlcGl0byByb2NrIiwiaWF0IjoxNzE2ODk2NjcwLCJleHAiOjE3MTY4OTY5NzB9.MZHn43x7BtEkRYrcxa3BDZhw-TMPqaBI09P83scYXaU
-
-### 
-POST {{public}}
-
-### 
-GET {{private}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNTI1Iiwibm9tYnJlIjoianVhbiIsImlhdCI6MTcxNTA1MTMxN30.XeacZLmYv4BtynEmtPrpl0wI1d2nCZpj5hnEkuBPmkU
-
-###
-POST {{token}}
+### Para login (POST, con JSON)
+POST {{user}}/login
 Content-Type: application/json
 
 {
-    "dni" : "2525",
-    "nombre": "juan"
+    "email": "noliii.currhu@example.com",
+    "contrasena": "12349876"
 }
-###
-POST {{sigup}}
+
+### Obtener datos del usuario autenticado
+GET {{user}}/me
+Authorization: bearer $2b$10$Y9vhxgT3ykn8Em2u6OXZi.05Le14ZS4kvVUvsDRsCSARjkK6KkZ7q
+
+
+### Obtener todas las materias
+GET {{materias}}
+Authorization: Bearer $2b$10$Y9vhxgT3ykn8Em2u6OXZi.05Le14ZS4kvVUvsDRsCSARjkK6KkZ7q
+
+### Crear una materia
+POST {{materias}}
 Content-Type: application/json
+Authorization: $2b$10$Y9vhxgT3ykn8Em2u6OXZi.05Le14ZS4kvVUvsDRsCSARjkK6KkZ7q
 
 {
- "nombre": "juan",
- "dni": "00019"
+    "Profesor_ID": "87458598",
+    "Nombre": "Matemáticas Avanzadas",
+    "Dia_Horario": "Miercoles 14:15-18:00"
 }
 
-#eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwZXBpdG8iLCJ1c2VybmFtZSI6InBlcGl0byByb2NrIiwiaWF0IjoxNzE1OTE4NDE1LCJleHAiOjE3MTU5MTg3MTV9.EPOuZvW1CczTYOsjP_L1K8SvqvJOCJtQO73EVDA2lmU
+### Obtener mis materias
+GET {{materias}}/mias
+Authorization: Bearer $2b$10$Y9vhxgT3ykn8Em2u6OXZi.05Le14ZS4kvVUvsDRsCSARjkK6KkZ7q

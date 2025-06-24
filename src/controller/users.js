@@ -1,69 +1,118 @@
-import { connect } from "../databases";
-import jwt from "jsonwebtoken";
+import { pool } from "../databases.js";
+import { compareWithBcrypt, hashWithBcrypt } from "../security/hash.js";
 const secret = process.env.SECRET_KEY;
 
-export const logIn = async (req, res) => {
-  try {
-    const { user: sub, username } = req.body;
-    const payload = { sub: sub, username: username };
-    const token = generateToken(payload);
-    res.header("auth", token).json({ message: "todo ok", token: token });
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-};
-
-export const listarProductos = (req, res) => {
-  const uderId = req.user.sub;
-  console.log(uderId);
-  const productos = [
-    { nombre: "coca", precio: "2500", desc: "retornable" },
-    { nombre: "asd", precio: "asd", desc: "asd" },
-    { nombre: "asd", precio: "asd", desc: "ads" },
-  ];
-  res.json(productos);
-};
-
 //crear usuarios desde el sigup
-export const createUsers = async (req, res) => {
+export const createUsers = async(req, res) => {
   try {
-    const { nombre, dni } = req.body;
-    const cnn = await connect();
+    const { dni, nombre, apellido, email, contrasena, is_profe } = req.body; //esto viene desde el front
 
-    const [insert] = await cnn.query(
-      "INSERT INTO alumno (nombre, dni) values (?,?)",
-      [nombre, dni]
-    );
+    const passwordHash = await hashWithBcrypt(contrasena);
 
-    console.log(insert);
-
-    if (insert.affectedRows === 1) {
-      return res.status(200).json({ message: "todo ok" });
+    const sql =
+      "INSERT INTO usuarios (dni, nombre, apellido, mail, contrasena, is_profe) VALUES (?,?,?,?,?,?)";
+    const [row] = await pool.query(sql, [
+      dni,
+      nombre,
+      apellido,
+      email,
+      passwordHash,
+      is_profe,
+    ]);
+    
+    if (row.affectedRows === 1) {
+      // Generar el token usando el dni del usuario
+      console.log("DNI para el token:", dni);
+      const token = createToken({ sub: dni });
+      res.setHeader("Authorization", `Bearer ${token}`); // Establecer el token en la cabecera de la respuesta
+      return res
+        .status(201)
+        .json({
+          message: "Usuario creado correctamente",
+          token: token,
+          user: {
+            dni,
+            nombre,
+            apellido,
+            email,
+            is_profe
+          },
+        });
     } else {
-      return res.status(500).json({ message: "no ok" });
+      return res
+        .status(400)
+        .json({ message: "Error al crear usuario" });
     }
-  } catch (error) {}
-};
-
-const generateToken = (payload) => {
-  try {
-    return jwt.sign(payload, secret, { expiresIn: "5m" });
   } catch (error) {
-    return error;
+    console.log("error al crear usuario", error.message);
+    return res.status(400).send(error.message);
   }
 };
 
-export const auth = (req, res, next) => {
-  const token = req.headers["auth"];
-  if (!token) return res.send("no hay token");
+export const login = async (req, res) => {
+  try {
+    const { email, contrasena } = req.body; //esto viene desde el front
+    
+    const sql = "SELECT * FROM usuarios WHERE mail = ?";
+    const [row] = await pool.query(sql, [email]);
 
-  jwt.verify(token, secret, (error, user) => {
-    if (error) {
-      res.send("token invalido");
-    } else {
-      console.log(user);
-      req.user = user;
-      next();
+    if (row.length === 0) {
+      return res.status(404).send("Usuario no encontrado");
     }
-  });
+    const user = rows[0];
+    console.log("contrasena del usuario:", contrasena);
+    console.log("contrasena hasheada del usuario:", user.contrasena);
+    const isPasswordValid = await compareWithBcrypt(contrasena, user.Contrasena);
+    if (!isPasswordValid) {
+      return res.status(401).send("contrasena incorrecta");
+    }
+
+   // Generar el token usando el dni del usuario encontrado
+    console.log("Es profe?", user.is_profe);
+    const token = createToken({ sub: user.DNI, is_profe: user.is_profe });
+
+    return res.status(200).json({
+      success: true,
+      token: token,
+      message: "Inicio de sesión",
+      user: {
+        dni: user.dni,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        email: user.mail,
+        is_profe: user.is_profe,
+      }
+    });
+
+  } catch (error) {
+    console.log("error al iniciar sesión", error.message);
+    return res.status(400).send(error.message);
+  }
+}
+
+
+
+export async function getMe(req, res) {
+  try {
+    const dni = req.user.sub; // El DNI viene del token
+    console.log("DNI del usuario:", req.user);
+    const sql = "SELECT * FROM usuarios WHERE dni = ?";
+    const [rows] = await pool.query(sql, [dni]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    const user = rows[0];
+    return res.status(200).json({
+      dni: user.dni,
+      nombre: user.nombre,
+      apellido: user.apellido,
+      email: user.mail,
+      is_profe: user.is_profe,
+    });
+  } catch (error) {
+    console.log("error al obtener datos", error.message);
+    return res.status(500).json({ message: "Error del servidor" });
+  }
 };

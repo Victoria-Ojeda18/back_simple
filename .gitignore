@@ -1,3 +1,7 @@
+// Ignore node_modules and dist directories
+
 .env
 
 node_modules
+
+dist 
