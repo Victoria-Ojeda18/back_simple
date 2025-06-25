@@ -10,11 +10,11 @@ POST {{user}}/
 Content-Type: application/json
 
 {
-    "dni": "87458598",
-    "nombre": "Noliiiiii",
-    "apellido": "Currhu",
-    "email": "trbtrb.currhu@example.com",
-    "contrasena": "12349876",
+    "dni": "3840384",
+    "nombre": "vic",
+    "apellido": "Ojeda",
+    "mail": "viOj@example.com",
+    "contrasena": "vic345678",
     "is_profe": true
 }
 ### Para login (POST, con JSON)
@@ -22,30 +22,30 @@ POST {{user}}/login
 Content-Type: application/json
 
 {
-    "email": "noliii.currhu@example.com",
-    "contrasena": "12349876"
+    "mail": "vicOj@example.com",
+    "contrasena": "vic345678"
 }
 
 ### Obtener datos del usuario autenticado
 GET {{user}}/me
-Authorization: bearer $2b$10$Y9vhxgT3ykn8Em2u6OXZi.05Le14ZS4kvVUvsDRsCSARjkK6KkZ7q
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzODQwMzg0IiwiaWF0IjoxNzUwODYxMTQyLCJleHAiOjE3NTA4NjQ3NDJ9.wr7TkVDAffgA4C2LIpbetm0VmovwscpP0UqAiIFqMgo
 
 
 ### Obtener todas las materias
 GET {{materias}}
-Authorization: Bearer $2b$10$Y9vhxgT3ykn8Em2u6OXZi.05Le14ZS4kvVUvsDRsCSARjkK6KkZ7q
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzODQwMzg0IiwiaWF0IjoxNzUwODYxMTQyLCJleHAiOjE3NTA4NjQ3NDJ9.wr7TkVDAffgA4C2LIpbetm0VmovwscpP0UqAiIFqMgo
 
 ### Crear una materia
 POST {{materias}}
 Content-Type: application/json
-Authorization: $2b$10$Y9vhxgT3ykn8Em2u6OXZi.05Le14ZS4kvVUvsDRsCSARjkK6KkZ7q
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzODQwMzg0IiwiaWF0IjoxNzUwODYxMTQyLCJleHAiOjE3NTA4NjQ3NDJ9.wr7TkVDAffgA4C2LIpbetm0VmovwscpP0UqAiIFqMgo
 
 {
-    "Profesor_ID": "87458598",
-    "Nombre": "Matemáticas Avanzadas",
-    "Dia_Horario": "Miercoles 14:15-18:00"
+    "Profesor_ID": "6754839",
+    "Nombre": "rdjovjpsdkfz",
+    "horario": "lunes"
 }
 
 ### Obtener mis materias
 GET {{materias}}/mias
-Authorization: Bearer $2b$10$Y9vhxgT3ykn8Em2u6OXZi.05Le14ZS4kvVUvsDRsCSARjkK6KkZ7q
+Authorization: Bearer $2b$10$Wy7T0Mjit5TgITn7WLPv/eGqI6TmXtm0mDKlHQeRsiTz6Fe1NpdzW

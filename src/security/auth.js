@@ -10,7 +10,8 @@ export function generarToken(payload) {
     return jwt.sign(payload, secretKey, options);
 }
 
-export function verificarToken(req, res, next) {
+// Esta función es tu "authenticateToken"
+export function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader?.split(' ')[1];
     if (!token) {
@@ -24,3 +25,12 @@ export function verificarToken(req, res, next) {
         next();
     });
 }
+
+// Dummy para requireProfesor (ajusta la lógica según tu app)
+export function requireProfesor(req, res, next) {
+    if (req.user?.is_profe) {
+        return res.status(403).json({ mensaje: 'Acceso solo para profesores' });
+    }
+    next();
+}
+

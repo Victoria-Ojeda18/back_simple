@@ -1,8 +1,10 @@
 //archivo para manejar las rutas de usuarios
 
 import { Router } from "express";
-import { createUsers, login } from "../controller/users.js";
-import { authenticateToken, getDatos } from "../security/auth.js";
+import { createUsers, login, getMe } from "../controller/users.js";
+import { verify } from "jsonwebtoken";
+import { authenticateToken } from "../security/auth.js";
+
 //objeto para manejo de url
 const routerUsers = Router();
 
@@ -17,6 +19,6 @@ routerUsers.get("/", (req, res) => {
     res.send("Ruta de usuarios");
 }); // GET /users
 routerUsers.post("/login", login); // POST /users/login
-routerUsers.get("/me", authenticateToken, getDatos); // Ruta privada
+routerUsers.get("/me", authenticateToken, getMe); // Ruta privada
 
 export default routerUsers;

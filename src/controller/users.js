@@ -1,11 +1,12 @@
 import { pool } from "../databases.js";
 import { compareWithBcrypt, hashWithBcrypt } from "../security/hash.js";
+import { generarToken } from "../security/auth.js";
 const secret = process.env.SECRET_KEY;
 
 //crear usuarios desde el sigup
 export const createUsers = async(req, res) => {
   try {
-    const { dni, nombre, apellido, email, contrasena, is_profe } = req.body; //esto viene desde el front
+    const { dni, nombre, apellido, mail, contrasena, is_profe } = req.body; //esto viene desde el front
 
     const passwordHash = await hashWithBcrypt(contrasena);
 
@@ -15,7 +16,7 @@ export const createUsers = async(req, res) => {
       dni,
       nombre,
       apellido,
-      email,
+      mail,
       passwordHash,
       is_profe,
     ]);
@@ -23,7 +24,7 @@ export const createUsers = async(req, res) => {
     if (row.affectedRows === 1) {
       // Generar el token usando el dni del usuario
       console.log("DNI para el token:", dni);
-      const token = createToken({ sub: dni });
+      const token = generarToken({ sub: dni });
       res.setHeader("Authorization", `Bearer ${token}`); // Establecer el token en la cabecera de la respuesta
       return res
         .status(201)
@@ -34,7 +35,7 @@ export const createUsers = async(req, res) => {
             dni,
             nombre,
             apellido,
-            email,
+            mail,
             is_profe
           },
         });
@@ -51,10 +52,10 @@ export const createUsers = async(req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, contrasena } = req.body; //esto viene desde el front
+    const { mail, contrasena } = req.body; //esto viene desde el front
     
     const sql = "SELECT * FROM usuarios WHERE mail = ?";
-    const [row] = await pool.query(sql, [email]);
+    const [row] = await pool.query(sql, [mail]);
 
     if (row.length === 0) {
       return res.status(404).send("Usuario no encontrado");
@@ -69,7 +70,7 @@ export const login = async (req, res) => {
 
    // Generar el token usando el dni del usuario encontrado
     console.log("Es profe?", user.is_profe);
-    const token = createToken({ sub: user.DNI, is_profe: user.is_profe });
+    const token = generarToken({ sub: user.DNI, is_profe: user.is_profe });
 
     return res.status(200).json({
       success: true,
@@ -79,7 +80,7 @@ export const login = async (req, res) => {
         dni: user.dni,
         nombre: user.nombre,
         apellido: user.apellido,
-        email: user.mail,
+        mail: user.mail,
         is_profe: user.is_profe,
       }
     });
@@ -108,7 +109,7 @@ export async function getMe(req, res) {
       dni: user.dni,
       nombre: user.nombre,
       apellido: user.apellido,
-      email: user.mail,
+      mail: user.mail,
       is_profe: user.is_profe,
     });
   } catch (error) {

@@ -1,4 +1,4 @@
-import { pool } from "../databases.js";
+import { pool } from "../databases";
 
 // Obtener todas las materias
 export const getMaterias = async (req, res) => {
@@ -14,9 +14,9 @@ export const getMaterias = async (req, res) => {
 // Crear una materia
 export const createMateria = async (req, res) => {
     try {
-        const { Profesor_ID, Nombre, Dia_Horario } = req.body;
-        const sql = "INSERT INTO materias (Profesor_ID, Nombre, Dia_Horario) VALUES (?, ?, ?)";
-        const [result] = await pool.query(sql, [Profesor_ID, Nombre, Dia_Horario]);
+        const { Profesor_ID, Nombre, horario } = req.body;
+        const sql = "INSERT INTO materias (Profesor_ID, Nombre, horario) VALUES (?, ?, ?)";
+        const [result] = await pool.query(sql, [Profesor_ID, Nombre, horario]);
         if (result.affectedRows === 1) {
             return res.status(201).json({ message: "Materia creada correctamente" });
         } else {
